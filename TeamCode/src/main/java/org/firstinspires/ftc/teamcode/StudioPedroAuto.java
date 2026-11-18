@@ -1,87 +1,84 @@
 package org.firstinspires.ftc.teamcode;
 
-
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
+import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
-import com.pedropathing.api.PoseFactory;
-import com.pedropathing.paths.Path;
-
-import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.Scheduler;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants_New;
 
-import static com.pedropathing.api.Paths.*;
-import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
+import static com.pedropathing.api.Paths.line;
 
-@Autonomous(name = "Studio Pedro Autonomous")
+@Autonomous(name = "BioBuzz Red Right")
 public class StudioPedroAuto extends OpMode {
+    private static final PoseFactory POSES = PoseFactory.degrees();
+    // Use the robot's starting position and forward direction as the local frame.
+    private static final Pose START_POSE = POSES.of(0, 0, 0);
+    private static final Pose END_POSE = POSES.of(10, 0, 0);
+    private static final double TIMEOUT_SECONDS = 10.0;
+    private static final double POSITION_TOLERANCE_INCHES = 0.5;
+    private static final double SETTLE_SECONDS = 0.3;
+
+    private final ElapsedTime moveTimer = new ElapsedTime();
+    private final ElapsedTime settleTimer = new ElapsedTime();
     private Follower follower;
-
-    // Use degrees for heading
-    private final PoseFactory p = PoseFactory.degrees();
-
-    // Define important positions
-    private final Pose startPose = p.of(24, 24, 0);
-    private final Pose scorePose = p.of(48, 48, 90);
-    private final Pose parkPose = p.of(72, 48, 90);
-
-    // Define paths
-    private Path startToScore() {
-        return line(startPose, scorePose)
-                .linear(startPose, scorePose);
-    }
-
-    private Path scoreToPark() {
-        return line(scorePose, parkPose)
-                .linear(scorePose, parkPose);
-    }
-
-    // Construct autonomous routine
-    private Command autoRoutine() {
-        return sequential(
-                follow(follower, startToScore()),
-
-                // Insert scoring mechanism command here
-
-                follow(follower, scoreToPark())
-        );
-    }
+    private boolean driving;
+    private String status = "Ready to drive forward 10 inches";
 
     @Override
     public void init() {
-        //Initialize Mechanism Motor
-
-
-        Scheduler.reset();
-
         follower = Constants_New.create(hardwareMap);
-        follower.setPose(startPose);
-        follower.update();
+        follower.holdEnd.set(true);
+        reportTelemetry();
     }
 
     @Override
     public void start() {
-        schedule(autoRoutine());
+        follower.setPose(START_POSE);
+        follower.follow(line(START_POSE, END_POSE).linear(START_POSE, END_POSE));
+        moveTimer.reset();
+        settleTimer.reset();
+        driving = true;
+        status = "Driving forward";
     }
 
     @Override
     public void loop() {
-        follower.update();
-        Scheduler.execute();
+        if (driving) {
+            if (moveTimer.seconds() >= TIMEOUT_SECONDS) {
+                stop();
+                status = "Drive timed out";
+            } else {
+                follower.update();
+                Pose current = follower.pose();
+                double distanceToEnd = Math.hypot(END_POSE.x() - current.x(),
+                        END_POSE.y() - current.y());
+                if (distanceToEnd > POSITION_TOLERANCE_INCHES) {
+                    settleTimer.reset();
+                } else if (settleTimer.seconds() >= SETTLE_SECONDS) {
+                    stop();
+                    status = "Drive complete";
+                }
+            }
+        }
+        reportTelemetry();
+    }
 
-        telemetry.addData("X", follower.pose().x());
-        telemetry.addData("Y", follower.pose().y());
-        telemetry.addData(
-                "Heading",
-                Math.toDegrees(follower.pose().heading())
-        );
+    @Override
+    public void stop() {
+        driving = false;
+        if (follower != null) {
+            follower.stop();
+            follower.drivetrain.stop();
+        }
+    }
+
+    private void reportTelemetry() {
+        telemetry.addData("Status", status);
+        telemetry.addData("Forward (in)", follower.pose().x());
+        telemetry.addData("Lateral (in)", follower.pose().y());
         telemetry.update();
     }
 }

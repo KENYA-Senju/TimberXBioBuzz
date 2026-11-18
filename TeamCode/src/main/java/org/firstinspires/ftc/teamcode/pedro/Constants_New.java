@@ -20,7 +20,7 @@ public class Constants_New {
 
     // 1. Drivetrain Motors Configuration
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
-        c.frontLeftName.set("leftFront ");
+        c.frontLeftName.set("leftFront");
         c.frontRightName.set("rightFront");
         c.backLeftName.set("leftBack");
         c.backRightName.set("rightBack");
