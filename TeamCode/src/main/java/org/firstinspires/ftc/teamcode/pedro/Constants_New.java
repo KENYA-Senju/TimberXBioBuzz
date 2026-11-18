@@ -25,7 +25,7 @@ public class Constants_New {
         c.backLeftName.set("leftBack");
         c.backRightName.set("rightBack");
         c.frontLeftDirection.set(DcMotorSimple.Direction.FORWARD);
-        c.frontRightDirection.set(DcMotorSimple.Direction.REVERSE);
+        c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
         c.backLeftDirection.set(DcMotorSimple.Direction.FORWARD);
         c.backRightDirection.set(DcMotorSimple.Direction.REVERSE);
     });
@@ -45,8 +45,8 @@ public class Constants_New {
             c -> {
                 Controller primaryTranslationalForward = Controller.proportional(9.517484286409474);
                 Controller secondaryTranslationalForward = Controller.proportional(3.5164561319644387);
-                Controller primaryTranslationalLateral = Controller.proportional(0.5048691243902689);
-                Controller secondaryTranslationalLateral = Controller.proportional(0.18653565111074524);
+                Controller primaryTranslationalLateral = Controller.proportional(9.517484286409474);
+                Controller secondaryTranslationalLateral = Controller.proportional(3.5164561319644387);
 
                 c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
                 c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
