@@ -25,7 +25,7 @@ public class Constants_New {
         c.backLeftName.set("leftBack");
         c.backRightName.set("rightBack");
         c.frontLeftDirection.set(DcMotorSimple.Direction.FORWARD);
-        c.frontRightDirection.set(DcMotorSimple.Direction.REVERSE);
+        c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
         c.backLeftDirection.set(DcMotorSimple.Direction.FORWARD);
         c.backRightDirection.set(DcMotorSimple.Direction.REVERSE);
     });
@@ -43,8 +43,11 @@ public class Constants_New {
     // 3. Foresight Configuration (Baseline defaults for compilation)
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {
-                Controller primaryTranslationalForward = Controller.proportional(9.517484286409474);
-                Controller secondaryTranslationalForward = Controller.proportional(3.5164561319644387);
+                // Cross-track correction for a strafe path runs through the robot's forward
+                // axis, so this gain must be modest or it saturates the allocator before the
+                // strafe drive vector gets any power. Pedro's reference config uses ~0.3.
+                Controller primaryTranslationalForward = Controller.proportional(0.5048691243902689);
+                Controller secondaryTranslationalForward = Controller.proportional(0.18653565111074524);
                 Controller primaryTranslationalLateral = Controller.proportional(0.5048691243902689);
                 Controller secondaryTranslationalLateral = Controller.proportional(0.18653565111074524);
 
