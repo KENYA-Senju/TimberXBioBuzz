@@ -19,9 +19,9 @@ public class StudioPedroAuto extends OpMode {
     private static final double TURN_POWER = 0.6;
     private static final double MIN_TURN_POWER = 0.2;
 
-    private static final double FORWARD_TIMEOUT_SECONDS = 8.0;
-    private static final double RIGHT_TIMEOUT_SECONDS = 8.0;
-    private static final double SPIN_TIMEOUT_SECONDS = 6.0;
+    private static final double FORWARD_TIMEOUT_SECONDS = 10.0;
+    private static final double RIGHT_TIMEOUT_SECONDS = 12.0;
+    private static final double SPIN_TIMEOUT_SECONDS = 10.0;
 
     // Guard against a bad localizer reading.
     private static final double MAX_SPEED_IN_PER_SEC = 120.0;
